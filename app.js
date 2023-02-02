@@ -88,6 +88,7 @@ const convertDbObjectToResponseObjectAPI4 = (dbObject) => {
     districtName: dbObject.district_name,
     stateId: dbObject.state_id,
     cases: dbObject.cases,
+    cured: dbObject.cured,
     active: dbObject.active,
     deaths: dbObject.deaths,
   };
