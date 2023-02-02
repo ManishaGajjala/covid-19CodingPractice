@@ -62,3 +62,81 @@ app.get("/states/:stateId", async (request, response) => {
 });
 
 //API3
+app.post("/districts/", async (request, response) => {
+  const districtDetails = request.body;
+  const {
+    districtName,
+    stateId,
+    cases,
+    cured,
+    active,
+    deaths,
+  } = districtDetails;
+  const addDetailsQuery = `
+        INSERT INTO district (district_name,state_id,cases,cured,active,deaths)
+        VALUES
+        ('${districtName}',${stateId},${cases},${cured},${active},${deaths});
+    `;
+  await db.run(addDetailsQuery);
+  response.send("District Successfully Added");
+});
+
+//API4
+const convertDbObjectToResponseObjectAPI4 = (dbObject) => {
+  return {
+    districtId: dbObject.district_id,
+    districtName: dbObject.district_name,
+    stateId: dbObject.state_id,
+    cases: dbObject.cases,
+    active: dbObject.active,
+    deaths: dbObject.deaths,
+  };
+};
+
+app.get("/districts/:districtId/", async (request, response) => {
+  const { districtId } = request.params;
+  const getDistrictQueryByID = `
+        SELECT * FROM district
+        WHERE district_id=${districtId};
+    `;
+  const district = await db.get(getDistrictQueryByID);
+  response.send(convertDbObjectToResponseObjectAPI4(district));
+});
+
+//API5
+app.delete("/districts/:districtId/", async (request, response) => {
+  const { districtId } = request.params;
+  const deleteDistrictQuery = `
+        DELETE FROM district
+        WHERE district_id=${districtId};
+    `;
+  await db.run(deleteDistrictQuery);
+  response.send("District Removed");
+});
+
+//API6
+app.put("/districts/:districtId/", async (request, response) => {
+  const { districtId } = request.params;
+  const districtDetails = request.body;
+  const {
+    districtName,
+    stateId,
+    cases,
+    cured,
+    active,
+    deaths,
+  } = districtDetails;
+  const updateDistrictQuery = `
+        UPDATE district
+        SET 
+            district_name='${districtName},
+            state_id=${stateId},
+            cases=${cases},
+            cured=${cured},
+            active=${active},
+            deaths=${deaths}
+        WHERE district_id=${districtId};
+    `;
+  await db.run(updateDistrictQuery);
+  response.send("District Details Updated");
+});
