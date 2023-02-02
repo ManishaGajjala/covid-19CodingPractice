@@ -129,7 +129,7 @@ app.put("/districts/:districtId/", async (request, response) => {
   const updateDistrictQuery = `
         UPDATE district
         SET 
-            district_name='${districtName},
+            district_name='${districtName}',
             state_id=${stateId},
             cases=${cases},
             cured=${cured},
@@ -140,3 +140,43 @@ app.put("/districts/:districtId/", async (request, response) => {
   await db.run(updateDistrictQuery);
   response.send("District Details Updated");
 });
+
+//API7
+app.get("/states/:stateId/stats/", async (request, response) => {
+  const { stateId } = request.params;
+  const getStatsQuery = `
+        SELECT SUM(cases),
+                SUM(cured),
+                SUM(active),
+                SUM(deaths)
+        FROM district
+        WHERE state_id=${stateId};
+    `;
+  const stats = await db.get(getStatsQuery);
+  //console.log(stats);
+  response.send({
+    totalCases: stats["SUM(cases)"],
+    totalCured: stats["SUM(cured)"],
+    totalActive: stats["SUM(active)"],
+    totalDeaths: stats["SUM(deaths)"],
+  });
+});
+
+//API8
+app.get("/districts/:districtId/details/", async (request, response) => {
+  const { districtId } = request.params;
+  const getStateNameQuery = `
+        SELECT state_name 
+        FROM district INNER JOIN state ON
+        state.state_id=district.state_id
+        WHERE district_id=${districtId};
+
+    `;
+  const state = await db.get(getStateNameQuery);
+  console.log(state);
+  response.send({
+    stateName: state["state_name"],
+  });
+});
+
+module.exports = app;
